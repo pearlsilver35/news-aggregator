@@ -1,0 +1,211 @@
+{
+  "info": {
+    "name": "News Aggregator API v1",
+    "description": "Modern REST API collection for News Aggregator platform",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"testuser@example.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/register",
+              "host": ["{{base_url}}"],
+              "path": ["register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"testuser@example.com\",\n    \"password\": \"password123\",\n    \"device_name\": \"postman\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/login",
+              "host": ["{{base_url}}"],
+              "path": ["login"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/logout",
+              "host": ["{{base_url}}"],
+              "path": ["logout"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user",
+              "host": ["{{base_url}}"],
+              "path": ["user"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Articles",
+      "item": [
+        {
+          "name": "Get Articles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "description": "Optional - Include for personalized results"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/articles",
+              "host": ["{{base_url}}"],
+              "path": ["articles"],
+              "query": [
+                {
+                  "key": "keyword",
+                  "value": "{{keyword}}",
+                  "description": "Optional - Search in title and content"
+                },
+                {
+                  "key": "category",
+                  "value": "{{category}}",
+                  "description": "Optional - Filter by category"
+                },
+                {
+                  "key": "source",
+                  "value": "{{source}}",
+                  "description": "Optional - Filter by source"
+                },
+                {
+                  "key": "author",
+                  "value": "{{author}}",
+                  "description": "Optional - Filter by author"
+                },
+                {
+                  "key": "date_from",
+                  "value": "{{date_from}}",
+                  "description": "Optional - Filter from date (YYYY-MM-DD)"
+                },
+                {
+                  "key": "date_to",
+                  "value": "{{date_to}}",
+                  "description": "Optional - Filter to date (YYYY-MM-DD)"
+                },
+                {
+                  "key": "sort",
+                  "value": "{{sort}}",
+                  "description": "Optional - Sort by: published_at, relevance"
+                },
+                {
+                  "key": "order",
+                  "value": "{{order}}",
+                  "description": "Optional - Order: asc, desc"
+                },
+                {
+                  "key": "per_page",
+                  "value": "{{per_page}}",
+                  "description": "Optional - Items per page (default: 10)"
+                },
+                {
+                  "key": "page",
+                  "value": "{{page}}",
+                  "description": "Optional - Page number"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Preferences",
+      "item": [
+        {
+          "name": "Save Preferences",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"preferences\": {\n        \"sources\": [\"bbc-news\", \"the-guardian\"],\n        \"categories\": [\"technology\", \"business\"],\n        \"authors\": [\"john-doe\", \"jane-smith\"],\n        \"notification_preferences\": {\n            \"email_notifications\": true,\n            \"push_notifications\": false,\n            \"notification_frequency\": \"daily\"\n        }\n    }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/preferences",
+              "host": ["{{base_url}}"],
+              "path": ["preferences"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api",
+      "type": "string"
+    }
+  ]
+}

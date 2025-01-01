@@ -1,0 +1,7 @@
+# Exclude UI Template folder
+UI-Template/
+UI-Template/*
+
+# In case you want to be extra thorough, also exclude any potential OS-specific files
+.DS_Store
+Thumbs.db
