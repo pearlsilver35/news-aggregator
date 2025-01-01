@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Auth\AuthenticationException;
 use Throwable;
+use Illuminate\Support\Facades\Log;
 
 class Handler extends ExceptionHandler
 {
@@ -33,5 +34,15 @@ class Handler extends ExceptionHandler
         return response()->json([
             'message' => 'Unauthenticated.'
         ], 401);
+    }
+    public function report(Throwable $e) 
+    {
+        try {
+            parent::report($e);
+        } catch (Throwable $loggingException) {
+            // Fallback to writing to system temp directory
+            Log::channel('failsafe')->error($e);
+            Log::channel('failsafe')->error("Logging failed: " . $loggingException->getMessage());
+        }
     }
 }

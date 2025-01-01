@@ -33,7 +33,7 @@ The application will automatically:
 
 ## Access the Application
 
-Once the containers are running, you can access:
+Once the containers are running and ready, you can access:
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:8000/api
 - PHPMyAdmin: http://localhost:8080

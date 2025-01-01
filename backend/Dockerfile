@@ -22,15 +22,10 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Create a user with the same UID and GID as the host user
-ARG UID
-ARG GID
-RUN groupadd -g $GID appgroup && \
-    useradd -u $UID -g appgroup -m appuser
 
-# Switch to the new user
-USER appuser
+# Switch to root for initial setup (needed for php-fpm)
+USER root
 
 # Expose port 9000 and start php-fpm server
 EXPOSE 9000
-CMD ["sh", "/var/www/html/start.sh"] 
+CMD ["sh", "/var/www/html/start.sh"]
