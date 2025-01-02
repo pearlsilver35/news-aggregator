@@ -27,6 +27,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 
 Route::middleware('auth.optional')->group(function () {
     Route::get('/articles', [ArticleController::class, 'index']);
+    Route::get('/articles/{id}', [ArticleController::class, 'show']);
     Route::get('/categories', [ArticleController::class, 'getCategories']);
     Route::get('/sources', [ArticleController::class, 'getSources']);
     Route::get('/authors', [ArticleController::class, 'getAuthors']);

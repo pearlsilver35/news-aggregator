@@ -11,8 +11,12 @@ import { Pagination } from './components/Pagination';
 import { useAuth } from './hooks/useAuth';
 import { useArticles } from './hooks/useArticles';
 import { User } from './types';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { ArticleDetail } from './pages/ArticleDetail';
 
 function App() {
+  const location = useLocation();
+  const isArticleDetail = location.pathname.includes('/articles/');
   const [showPreferences, setShowPreferences] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
@@ -75,41 +79,52 @@ function App() {
           showFilters={showFilters}
           onToggleFilters={() => setShowFilters(!showFilters)}
           onPreferencesSave={handlePreferencesSave}
+          hideSearch={isArticleDetail}
         />
 
-        {showFilters && (
-          <Filters 
-            onFilterChange={handleFilterChange} 
-            selectedFilters={filters} 
-            onResetFilters={handleResetFilters} 
+        <Routes>
+          <Route path="/articles/:id" element={<ArticleDetail />} />
+          <Route
+            path="/"
+            element={
+              <>
+                {showFilters && (
+                  <Filters 
+                    onFilterChange={handleFilterChange} 
+                    selectedFilters={filters} 
+                    onResetFilters={handleResetFilters} 
+                  />
+                )}
+
+                <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                  {isLoading ? (
+                    <div className="flex justify-center items-center h-64">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                    </div>
+                  ) : (
+                    <>
+                      <ArticleLayout 
+                        articles={articles} 
+                        isFilterActive={isFilterActive}
+                        onRefresh={() => {
+                          handleResetFilters();
+                          fetchArticles(1);
+                        }}
+                      />
+
+                      {pagination && (
+                        <Pagination 
+                          pagination={pagination}
+                          onPageChange={handlePageChange}
+                        />
+                      )}
+                    </>
+                  )}
+                </main>
+              </>
+            }
           />
-        )}
-
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {isLoading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            </div>
-          ) : (
-            <>
-              <ArticleLayout 
-                articles={articles} 
-                isFilterActive={isFilterActive}
-                onRefresh={() => {
-                  handleResetFilters();
-                  fetchArticles(1);
-                }}
-              />
-
-              {pagination && (
-                <Pagination 
-                  pagination={pagination}
-                  onPageChange={handlePageChange}
-                />
-              )}
-            </>
-          )}
-        </main>
+        </Routes>
 
         {user && (
           <PreferencesModal

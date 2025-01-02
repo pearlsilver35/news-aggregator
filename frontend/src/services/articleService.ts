@@ -52,4 +52,18 @@ export const articleService = {
 
     return response.json();
   },
+};
+
+export const getArticle = async (id: string) => {
+  const response = await fetch(`${API_URL}/articles/${id}`, {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`,
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch article');
+  }
+  
+  return response.json();
 }; 

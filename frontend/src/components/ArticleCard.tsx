@@ -1,16 +1,13 @@
-import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Article } from '../types';
 import { Clock, Eye } from 'lucide-react';
-import ArticleDetailModal from './ArticleDetailModal';
 
 interface ArticleCardProps {
   article: Article;
   compact?: boolean;
 }
 
-export default function ArticleCard({ article, compact = false }: ArticleCardProps) {
-  const [showDetail, setShowDetail] = useState(false);
-
+export function ArticleCard({ article, compact }: ArticleCardProps) {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
@@ -20,7 +17,7 @@ export default function ArticleCard({ article, compact = false }: ArticleCardPro
   };
 
   return (
-    <>
+    <Link to={`/articles/${article.id}`} className="block">
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
         {article.image_url && (
           <img
@@ -64,12 +61,6 @@ export default function ArticleCard({ article, compact = false }: ArticleCardPro
           </div>
         </div>
       </div>
-
-      <ArticleDetailModal
-        article={article}
-        isOpen={showDetail}
-        onClose={() => setShowDetail(false)}
-      />
-    </>
+    </Link>
   );
 }

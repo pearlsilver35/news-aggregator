@@ -18,6 +18,7 @@ interface HeaderProps {
   showFilters?: boolean;
   onToggleFilters?: () => void;
   onPreferencesSave: (preferences: User['preferences']) => void;
+  hideSearch?: boolean;
 }
 
 export default function Header({
@@ -28,7 +29,8 @@ export default function Header({
   onSearch,
   showFilters = false,
   onToggleFilters,
-  onPreferencesSave
+  onPreferencesSave,
+  hideSearch = false
 }: HeaderProps) {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -59,25 +61,27 @@ export default function Header({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14 gap-8">
         <Logo className="h-4 sm:h-8 w-auto flex-shrink-0" />
 
-        <div className="relative flex-1 max-w-md hidden sm:block">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={handleSearchChange}
-            placeholder="Search articles..."
-            className="pl-10 pr-12 py-2 w-full border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <Tooltip content="Filters">
-            <button
-              onClick={onToggleFilters}
-              className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 ${showFilters ? 'text-blue-500' : 'text-gray-400'
-                }`}
-            >
-              <SlidersHorizontal className="h-5 w-5" />
-            </button>
-          </Tooltip>
-        </div>
+        {!hideSearch && (
+          <div className="relative flex-1 max-w-md hidden sm:block">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              placeholder="Search articles..."
+              className="pl-10 pr-12 py-2 w-full border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <Tooltip content="Filters">
+              <button
+                onClick={onToggleFilters}
+                className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 ${showFilters ? 'text-blue-500' : 'text-gray-400'
+                  }`}
+              >
+                <SlidersHorizontal className="h-5 w-5" />
+              </button>
+            </Tooltip>
+          </div>
+        )}
 
         <div className="relative w-full sm:hidden">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />

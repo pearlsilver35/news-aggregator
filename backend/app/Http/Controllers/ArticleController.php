@@ -5,6 +5,7 @@ use App\Services\ArticleService;
 use App\Http\Requests\ArticleFilterRequest;
 use Illuminate\Http\JsonResponse;
 use Exception;
+use App\Models\Article;
 
 class ArticleController extends Controller
 {
@@ -45,5 +46,21 @@ class ArticleController extends Controller
     {
         $authors = $this->articleService->getAuthors();
         return response()->json(['authors' => $authors]);
+    }
+
+    public function show($id)
+    {
+        $article = Article::findOrFail($id);
+        
+        // Get recommended articles based on category
+        $recommended = Article::where('category', $article->category)
+            ->where('id', '!=', $article->id)
+            ->limit(3)
+            ->get();
+        
+        return response()->json([
+            'article' => $article,
+            'recommended' => $recommended
+        ]);
     }
 } 

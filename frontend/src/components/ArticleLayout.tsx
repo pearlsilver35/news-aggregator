@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Article } from '../types';
 import { User as UserIcon, Calendar } from 'lucide-react';
-import ArticleCard from './ArticleCard';
+import { ArticleCard } from './ArticleCard';
 
 interface ArticleLayoutProps {
   articles: Article[];
@@ -77,14 +78,12 @@ export function ArticleLayout({ articles, isFilterActive, onRefresh }: ArticleLa
                   <span>{new Date(articles[0].published_at).toLocaleDateString()}</span>
                 </div>
               </div>
-              <a
-                href={articles[0].source_url}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to={`/articles/${articles[0].id}`}
                 className="text-blue-600 hover:text-blue-700 font-medium"
               >
                 Read More
-              </a>
+              </Link>
             </div>
           </div>
         </motion.div>
@@ -108,16 +107,14 @@ export function ArticleLayout({ articles, isFilterActive, onRefresh }: ArticleLa
                 className="w-full h-48 object-cover rounded"
                 whileHover={{ scale: 1.05 }}
               />
-              <a
-                href={article.source_url}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to={`/articles/${article.id}`}
                 className="block"
               >
                 <h3 className="font-semibold text-lg hover:text-blue-600">
                   {article.title}
                 </h3>
-              </a>
+              </Link>
               <div className="flex items-center space-x-4 text-sm text-gray-500">
                 {article.author && (
                   <div className="flex items-center space-x-1">
@@ -147,16 +144,14 @@ export function ArticleLayout({ articles, isFilterActive, onRefresh }: ArticleLa
                 whileHover={{ scale: 1.05 }}
               />
               <div>
-                <a
-                  href={article.source_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  to={`/articles/${article.id}`}
                   className="block"
                 >
                   <h3 className="font-medium text-base hover:text-blue-600 line-clamp-2">
                     {article.title}
                   </h3>
-                </a>
+                </Link>
                 <div className="flex items-center space-x-4 text-sm text-gray-500 mt-2">
                   {article.author && (
                     <div className="flex items-center space-x-1">
