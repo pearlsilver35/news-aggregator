@@ -79,6 +79,7 @@ function App() {
   const handlePreferencesSave = (preferences: User['preferences']) => {
     if (user) {
       setUser({ ...user, preferences });
+      fetchArticles(currentPage);
     }
   };
 
@@ -133,6 +134,7 @@ function App() {
           onSearch={handleSearch}
           showFilters={showFilters}
           onToggleFilters={() => setShowFilters(!showFilters)}
+          onPreferencesSave={handlePreferencesSave}
         />
 
         {showFilters && <Filters onFilterChange={handleFilterChange} />}

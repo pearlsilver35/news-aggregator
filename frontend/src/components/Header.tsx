@@ -17,6 +17,7 @@ interface HeaderProps {
   onSearch: (keyword: string) => void;
   showFilters?: boolean;
   onToggleFilters?: () => void;
+  onPreferencesSave: (preferences: User['preferences']) => void;
 }
 
 export default function Header({
@@ -26,7 +27,8 @@ export default function Header({
   onLogout,
   onSearch,
   showFilters = false,
-  onToggleFilters
+  onToggleFilters,
+  onPreferencesSave
 }: HeaderProps) {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -207,7 +209,7 @@ export default function Header({
           user={user}
           isOpen={showPreferences}
           onClose={() => setShowPreferences(false)}
-          onSave={handlePreferencesSave}
+          onSave={onPreferencesSave}
         />
       )}
     </header>
