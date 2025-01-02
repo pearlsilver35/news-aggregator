@@ -35,8 +35,13 @@ export default function LoginModal({ isOpen, onClose, onLogin, onSwitchToRegiste
     try {
       await onLogin({ email, password });
       onClose();
-    } catch (error) {
-      setError('Invalid email or password');
+    } catch (error: any) {
+      // Extract error message from the API response
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.error ||
+                          error.message ||
+                          'Login failed. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

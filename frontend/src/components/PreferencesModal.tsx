@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 import { User } from '../types';
 import { filterService } from '../services/filterService';
 import { preferencesService } from '../services/preferencesService';
-import { toast } from 'react-hot-toast';
+import { toast } from '../utils/toast';
 
 interface PreferencesModalProps {
   user: User;

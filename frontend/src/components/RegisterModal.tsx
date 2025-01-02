@@ -39,8 +39,13 @@ export default function RegisterModal({ isOpen, onClose, onRegister, onSwitchToL
     try {
       await onRegister({ name, email, password });
       onClose();
-    } catch (error) {
-      setError('Registration failed. Please try again.');
+    } catch (error: any) {
+      // Extract error message from the API response
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.error ||
+                          error.message ||
+                          'Registration failed. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
