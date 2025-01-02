@@ -117,6 +117,14 @@ class NewsScraperService
     {
         try {
             $data = $this->formatArticleData($articleData, $source);
+
+            // Check for duplicates based on a unique attribute, e.g., source_url
+            $existingArticle = Article::where('source_url', $data['source_url'])->first();
+            if ($existingArticle) {
+                Log::info("Duplicate article found from $source: " . $data['title']);
+                return; // Skip saving if duplicate is found
+            }
+
             $this->articleService->saveArticle($data);
         } catch (\Exception $e) {
             Log::error("Failed to save article from $source: " . $e->getMessage());
