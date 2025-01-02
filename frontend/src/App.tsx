@@ -1,113 +1,54 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Header from './components/Header';
-import ArticleCard from './components/ArticleCard';
 import Filters from './components/Filters';
 import PreferencesModal from './components/PreferencesModal';
-import { Article, SearchFilters, User } from './types';
 import LoginModal from './components/LoginModal';
 import RegisterModal from './components/RegisterModal';
-import { authService } from './services/auth';
 import { Toaster } from 'react-hot-toast';
-import { articleService, PaginatedResponse } from './services/articleService';
 import Footer from './components/Footer';
-import { User as UserIcon, Calendar } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ArticleLayout } from './components/ArticleLayout';
+import { Pagination } from './components/Pagination';
+import { useAuth } from './hooks/useAuth';
+import { useArticles } from './hooks/useArticles';
+import { User } from './types';
 
 function App() {
-  const [user, setUser] = useState<User | null>(null);
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [pagination, setPagination] = useState<Omit<PaginatedResponse<Article>, 'data'> | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  const [filters, setFilters] = useState<SearchFilters>({ keyword: '' });
   const [showPreferences, setShowPreferences] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const initialFilters: SearchFilters = { keyword: '', date: '', category: '', source: '', author: '' };
+
+  const {
+    user,
+    setUser,
+    handleLogin,
+    handleRegister,
+    handleLogout
+  } = useAuth();
+
+  const {
+    articles,
+    pagination,
+    currentPage,
+    isLoading,
+    filters,
+    fetchArticles,
+    handleFilterChange,
+    handleSearch,
+    handleResetFilters,
+    handlePageChange
+  } = useArticles();
 
   useEffect(() => {
-    if (authService.isAuthenticated()) {
-      authService.getCurrentUser()
-        .then(setUser)
-        .catch(() => {
-          setUser(null);
-        });
-    }
-  }, []);
-
-  const handleLogin = async (credentials: { email: string; password: string }) => {
-    try {
-      await authService.login(credentials);
-      const currentUser = await authService.getCurrentUser();
-      setUser(currentUser);
-      setShowLogin(false);
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
-    }
-  };
-
-  const handleRegister = async (data: { name: string; email: string; password: string }) => {
-    try {
-      await authService.register(data);
-      const currentUser = await authService.getCurrentUser();
-      setUser(currentUser);
-      setShowRegister(false);
-    } catch (error) {
-      console.error('Registration error:', error);
-      throw error;
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await authService.logout();
-    } finally {
-      setUser(null);
-    }
-  };
-
-  const handleFilterChange = (newFilters: Partial<SearchFilters>) => {
-    setFilters({ ...filters, ...newFilters });
-    setCurrentPage(1); // Reset to first page when filters change
-  };
+    fetchArticles(currentPage);
+  }, [currentPage, filters, user, fetchArticles]);
 
   const handlePreferencesSave = (preferences: User['preferences']) => {
     if (user) {
       setUser({ ...user, preferences });
-      fetchArticles(currentPage);
+      fetchArticles(1);
     }
   };
-
-  const fetchArticles = useCallback(async (page: number = 1) => {
-    setIsLoading(true);
-    try {
-      const response = await articleService.getArticles(page, filters);
-      setArticles(response.data);
-      setPagination(response);
-    } catch (error) {
-      console.error('Failed to fetch articles:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [filters]);
-
-  useEffect(() => {
-    fetchArticles(currentPage);
-  }, [currentPage, filters, user, fetchArticles]); // Added fetchArticles
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleSearch = (keyword: string) => {
-    setFilters(prev => ({ ...prev, keyword }));
-    setCurrentPage(1);
-  };
-
-  const isFilterActive = filters.keyword || showFilters;
 
   const handleSwitchToRegister = () => {
     setShowLogin(false);
@@ -119,15 +60,7 @@ function App() {
     setShowLogin(true);
   };
 
-  const handleRefresh = () => {
-    setFilters(initialFilters);
-    fetchArticles(1);
-  };
-
-  const handleResetFilters = () => {
-    setFilters(initialFilters);
-    fetchArticles(1);
-  };
+  const isFilterActive = filters.keyword || showFilters;
 
   return (
     <>
@@ -144,7 +77,13 @@ function App() {
           onPreferencesSave={handlePreferencesSave}
         />
 
-        {showFilters && <Filters onFilterChange={handleFilterChange} selectedFilters={filters} onResetFilters={handleResetFilters} />}
+        {showFilters && (
+          <Filters 
+            onFilterChange={handleFilterChange} 
+            selectedFilters={filters} 
+            onResetFilters={handleResetFilters} 
+          />
+        )}
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {isLoading ? (
@@ -153,199 +92,20 @@ function App() {
             </div>
           ) : (
             <>
-              {articles.length === 0 ? (
-                <div className="text-center">
-                  <h2 className="text-xl font-bold">No Articles Found</h2>
-                  <p className="text-gray-600">There are no articles available based on your selected filters.</p>
-                  <p className="text-gray-600">You can check your personalized filters or refresh the page.</p>
-                  <button
-                    onClick={handleRefresh}
-                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                  >
-                    Refresh
-                  </button>
-                </div>
-              ) : (
-                <>
-                  {!isFilterActive ? (
-                    <>
-                      {articles.length > 1 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                          <div className="md:col-span-2">
-                            {articles.length > 0 && (
-                              <motion.div
-                                className="space-y-4"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.5 }}
-                              >
-                                <motion.img
-                                  src={articles[0].image_url}
-                                  alt={articles[0].title}
-                                  className="w-full h-[400px] object-cover rounded-lg"
-                                  whileHover={{ scale: 1.05 }}
-                                />
-                                <h1 className="text-3xl font-bold">{articles[0].title}</h1>
-                                <div className="border-t border-gray-200 pt-4">
-                                  <p className="text-gray-600 mb-4 line-clamp-2">{articles[0].description}</p>
-                                  <p className="text-gray-700 mb-4 line-clamp-3">{articles[0].content}</p>
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-4 text-sm text-gray-500">
-                                      <span>{articles[0].source}</span>
-                                      {articles[0].author && (
-                                        <div className="flex items-center space-x-1">
-                                          <UserIcon className="h-4 w-4" />
-                                          <span>{articles[0].author}</span>
-                                        </div>
-                                      )}
-                                      <div className="flex items-center space-x-1">
-                                        <Calendar className="h-4 w-4" />
-                                        <span>{new Date(articles[0].published_at).toLocaleDateString()}</span>
-                                      </div>
-                                    </div>
-                                    <a
-                                      href={articles[0].source_url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-blue-600 hover:text-blue-700 font-medium"
-                                    >
-                                      Read More
-                                    </a>
-                                  </div>
-                                </div>
-                              </motion.div>
-                            )}
-                          </div>
-                          <div className="md:col-span-1">
-                            <div className="border-b border-gray-200 mb-6">
-                              <h2 className="text-xl font-bold pb-2">Top Story</h2>
-                            </div>
-                            <div className="space-y-6">
-                              {articles.slice(1, 2).map((article) => (
-                                <motion.div
-                                  key={article.id}
-                                  className="space-y-3"
-                                  initial={{ opacity: 0, y: 20 }}
-                                  animate={{ opacity: 1, y: 0 }}
-                                  transition={{ duration: 0.5, delay: 0.1 }}
-                                >
-                                  <motion.img
-                                    src={article.image_url}
-                                    alt={article.title}
-                                    className="w-full h-48 object-cover rounded"
-                                    whileHover={{ scale: 1.05 }}
-                                  />
-                                  <a
-                                    href={articles[0].source_url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-3xl font-bold hover:text-blue-600"
-                                  >
-                                    <h3 className="font-semibold text-lg hover:text-blue-600">
-                                      {article.title}
-                                    </h3>
-                                  </a>
-                                  <div className="flex items-center space-x-4 text-sm text-gray-500">
-                                    {article.author && (
-                                      <div className="flex items-center space-x-1">
-                                        <UserIcon className="h-4 w-4" />
-                                        <span>{article.author}</span>
-                                      </div>
-                                    )}
-                                    <div className="flex items-center space-x-1">
-                                      <Calendar className="h-4 w-4" />
-                                      <span>{new Date(article.published_at).toLocaleDateString()}</span>
-                                    </div>
-                                  </div>
-                                </motion.div>
-                              ))}
-                              {articles.slice(2, 7).map((article) => (
-                                <motion.div
-                                  key={article.id}
-                                  className="flex gap-4 items-start pt-4 border-t border-gray-100"
-                                  initial={{ opacity: 0, y: 20 }}
-                                  animate={{ opacity: 1, y: 0 }}
-                                  transition={{ duration: 0.5, delay: 0.2 }}
-                                >
-                                  <motion.img
-                                    src={article.image_url}
-                                    alt={article.title}
-                                    className="w-20 h-20 object-cover rounded flex-shrink-0"
-                                    whileHover={{ scale: 1.05 }}
-                                  />
-                                  <div>
-                                    <a
-                                      href={articles[0].source_url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-3xl font-bold hover:text-blue-600"
-                                    >
-                                      <h3 className="font-medium text-base hover:text-blue-600 line-clamp-2">
-                                        {article.title}
-                                      </h3>
-                                    </a>
-                                    <div className="flex items-center space-x-4 text-sm text-gray-500 mt-2">
-                                      {article.author && (
-                                        <div className="flex items-center space-x-1">
-                                          <UserIcon className="h-4 w-4" />
-                                          <span>{article.author}</span>
-                                        </div>
-                                      )}
-                                      <div className="flex items-center space-x-1">
-                                        <Calendar className="h-4 w-4" />
-                                        <span>{new Date(article.published_at).toLocaleDateString()}</span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </motion.div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="max-w-3xl mx-auto">
-                          {articles.length === 1 && (
-                            <ArticleCard article={articles[0]} />
-                          )}
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {articles.map((article) => (
-                        <ArticleCard key={article.id} article={article} />
-                      ))}
-                    </div>
-                  )}
+              <ArticleLayout 
+                articles={articles} 
+                isFilterActive={isFilterActive}
+                onRefresh={() => {
+                  handleResetFilters();
+                  fetchArticles(1);
+                }}
+              />
 
-                  {pagination && (
-                    <div className="mt-8 flex justify-center">
-                      <nav className="flex items-center gap-2">
-                        {pagination.current_page > 1 && (
-                          <button
-                            onClick={() => handlePageChange(pagination.current_page - 1)}
-                            className="px-3 py-1 rounded border hover:bg-gray-100"
-                          >
-                            Previous
-                          </button>
-                        )}
-
-                        <span className="px-3 py-1">
-                          Page {pagination.current_page} of {pagination.last_page}
-                        </span>
-
-                        {pagination.current_page < pagination.last_page && (
-                          <button
-                            onClick={() => handlePageChange(pagination.current_page + 1)}
-                            className="px-3 py-1 rounded border hover:bg-gray-100"
-                          >
-                            Next
-                          </button>
-                        )}
-                      </nav>
-                    </div>
-                  )}
-                </>
+              {pagination && (
+                <Pagination 
+                  pagination={pagination}
+                  onPageChange={handlePageChange}
+                />
               )}
             </>
           )}
