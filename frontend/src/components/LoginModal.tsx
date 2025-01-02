@@ -26,7 +26,6 @@ export default function LoginModal({ isOpen, onClose, onLogin, onSwitchToRegiste
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    e.stopPropagation();
     
     if (isLoading) return;
     
@@ -35,8 +34,10 @@ export default function LoginModal({ isOpen, onClose, onLogin, onSwitchToRegiste
 
     try {
       await onLogin({ email, password });
+      onClose();
     } catch (error) {
       setError('Invalid email or password');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -74,6 +75,7 @@ export default function LoginModal({ isOpen, onClose, onLogin, onSwitchToRegiste
               onChange={(e) => setEmail(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-blue-500 focus:ring-blue-500 transition duration-150 ease-in-out"
               required
+              id="email"
             />
           </div>
 
@@ -85,6 +87,7 @@ export default function LoginModal({ isOpen, onClose, onLogin, onSwitchToRegiste
               onChange={(e) => setPassword(e.target.value)}
               className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:border-blue-500 focus:ring-blue-500 transition duration-150 ease-in-out"
               required
+              id="password"
             />
           </div>
 

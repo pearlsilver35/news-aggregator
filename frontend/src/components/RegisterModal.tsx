@@ -38,8 +38,10 @@ export default function RegisterModal({ isOpen, onClose, onRegister, onSwitchToL
 
     try {
       await onRegister({ name, email, password });
+      onClose();
     } catch (error) {
       setError('Registration failed. Please try again.');
+    } finally {
       setIsLoading(false);
     }
   };

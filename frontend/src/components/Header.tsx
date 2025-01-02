@@ -47,16 +47,6 @@ export default function Header({
     debouncedSearch(value);
   };
 
-  const handleLogin = async (credentials: { email: string; password: string }) => {
-    await onLogin(credentials);
-    setShowLoginModal(false);
-  };
-
-  const handleRegister = async (data: { email: string; password: string; name: string }) => {
-    await onRegister();
-    setShowRegisterModal(false);
-  };
-
   const handlePreferencesSave = (newPreferences: User['preferences']) => {
     // Handle preferences save if needed
     setShowPreferences(false);
@@ -195,7 +185,7 @@ export default function Header({
       <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
-        onLogin={handleLogin}
+        onLogin={onLogin}
         onSwitchToRegister={() => {
           setShowLoginModal(false);
           setShowRegisterModal(true);
@@ -205,7 +195,7 @@ export default function Header({
       <RegisterModal
         isOpen={showRegisterModal}
         onClose={() => setShowRegisterModal(false)}
-        onRegister={handleRegister}
+        onRegister={onRegister}
         onSwitchToLogin={() => {
           setShowRegisterModal(false);
           setShowLoginModal(true);

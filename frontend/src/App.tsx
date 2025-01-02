@@ -24,6 +24,8 @@ function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
 
   useEffect(() => {
     // Only try to get current user if we have a token
@@ -38,18 +40,27 @@ function App() {
   }, []);
 
   const handleLogin = async (credentials: { email: string; password: string }) => {
-    await authService.login(credentials);
-    setShowLogin(false);
-    const user = await authService.getCurrentUser();
-    setUser(user);
-
+    try {
+      await authService.login(credentials);
+      const currentUser = await authService.getCurrentUser();
+      setUser(currentUser);
+      setShowLogin(false);
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
   };
 
   const handleRegister = async (data: { name: string; email: string; password: string }) => {
-    await authService.register(data);
-    setShowRegister(false);
-    const user = await authService.getCurrentUser();
-    setUser(user);
+    try {
+      await authService.register(data);
+      const currentUser = await authService.getCurrentUser();
+      setUser(currentUser);
+      setShowRegister(false);
+    } catch (error) {
+      console.error('Registration error:', error);
+      throw error;
+    }
   };
 
   const handleLogout = async () => {
@@ -116,8 +127,8 @@ function App() {
       <div className="min-h-screen bg-gray-50">
         <Header
           user={user}
-          onLogin={() => setShowLogin(true)}
-          onRegister={() => setShowRegister(true)}
+          onLogin={handleLogin}
+          onRegister={handleRegister}
           onLogout={handleLogout}
           onSearch={handleSearch}
           showFilters={showFilters}
