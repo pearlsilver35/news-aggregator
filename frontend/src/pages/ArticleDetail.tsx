@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Article } from '../types';
 import { getArticle } from '../services/articleService';
-import { ArticleCard } from '../components/ArticleCard';
-import { Clock, User as UserIcon, Link as LinkIcon } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Clock, User as UserIcon, Calendar, Link as LinkIcon } from 'lucide-react';
 
 export function ArticleDetail() {
   const { id } = useParams();
@@ -97,10 +97,47 @@ export function ArticleDetail() {
         </div>
 
         <div className="lg:col-span-1">
-          <h2 className="text-xl font-semibold mb-4">Recommended Articles</h2>
-          <div className="space-y-4">
+          <div className="border-b border-gray-200 mb-6">
+            <h2 className="text-xl font-bold pb-2">Recommended Articles</h2>
+          </div>
+          <div className="space-y-6">
             {recommendedArticles.map((article) => (
-              <ArticleCard key={article.id} article={article} />
+              <motion.div
+                key={article.id}
+                className="flex gap-4 items-start pt-4 border-t border-gray-100"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <motion.img
+                  src={article.image_url || ''}
+                  alt={article.title}
+                  className="w-20 h-20 object-cover rounded flex-shrink-0"
+                  whileHover={{ scale: 1.05 }}
+                />
+                <div>
+                  <Link
+                    to={`/articles/${article.id}`}
+                    className="block"
+                  >
+                    <h3 className="font-medium text-base hover:text-blue-600 line-clamp-2">
+                      {article.title}
+                    </h3>
+                  </Link>
+                  <div className="flex items-center space-x-4 text-sm text-gray-500 mt-2">
+                    {article.author && (
+                      <div className="flex items-center space-x-1">
+                        <UserIcon className="h-4 w-4" />
+                        <span>{article.author}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center space-x-1">
+                      <Calendar className="h-4 w-4" />
+                      <span>{formatDate(article.published_at)}</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
